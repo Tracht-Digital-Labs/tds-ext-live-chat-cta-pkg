@@ -219,13 +219,13 @@ describe("loading", () => {
   it("reports any other failure with its status", async () => {
     getReply = { status: 500, body: {} };
     render(<LiveChatSettings />);
-    expect(await screen.findByText("Fehler (HTTP 500).")).toBeTruthy();
+    expect(await screen.findByText("Einstellungen konnten nicht geladen werden (HTTP 500).")).toBeTruthy();
   });
 
   it("leaves the loading state even when the request fails", async () => {
     getReply = { status: 500, body: {} };
     render(<LiveChatSettings />);
-    await screen.findByText("Fehler (HTTP 500).");
+    await screen.findByText("Einstellungen konnten nicht geladen werden (HTTP 500).");
     expect(screen.queryByLabelText("Wird geladen")).toBeNull();
   });
 
@@ -351,7 +351,7 @@ describe("saving", () => {
     putReply = { status: 403, body: {} };
     const u = await open();
     await u.click(screen.getByRole("button", { name: "Speichern" }));
-    await waitFor(() => expect(toasts.some((t) => t.variant === "danger" && t.message.includes("403"))).toBe(true));
+    await waitFor(() => expect(toasts.some((t) => t.variant === "danger" && t.message === "Nur für Administratoren.")).toBe(true));
     expect(calls.filter((c) => c.method === "GET")).toHaveLength(1);
   });
 

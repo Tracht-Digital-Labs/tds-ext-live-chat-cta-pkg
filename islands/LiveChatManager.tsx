@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { toast } from "@tracht-digital-solutions/tds-shared/components";
-import { apiFetch } from "@tracht-digital-solutions/tds-shared/api";
+import { Alert, toast } from "@tracht-digital-solutions/tds-shared/components";
+import { apiFetch, sendJson } from "@tracht-digital-solutions/tds-shared/api";
 import {
   AnimatedItem,
   AnimatedList,
   Presence,
 } from "@tracht-digital-solutions/tds-shared/motion/react";
+import { formatDateTime, parseDate } from "@tracht-digital-solutions/tds-shared/format";
 
 /**
  * Admin surface for the Live-Chat-CTA: the visitor-session inbox (list + thread
@@ -19,7 +20,6 @@ import {
  * support work, and it is granted separately (`wiki:*` vs `live-chat:*`).
  */
 
-const api = apiFetch;
 const POLL_MS = 4000;
 
 export default function LiveChatManager() {
@@ -58,7 +58,7 @@ function ChatsTab() {
   const loadSessions = useCallback(async () => {
     // apiFetch rejects when the request never reaches the API; uncaught, the
     // list read "Keine Chats." and the rejection went unhandled.
-    const res = await api(`/admin/live-chat-cta/sessions${filter ? `?status=${filter}` : ""}`).catch(() => null);
+    const res = await apiFetch(`/admin/live-chat-cta/sessions${filter ? `?status=${filter}` : ""}`).catch(() => null);
     setLoadFailed(res === null);
     if (res?.ok) setSessions((await res.json()).sessions ?? []);
   }, [filter]);
@@ -88,9 +88,9 @@ function ChatsTab() {
           ))}
         </div>
         {loadFailed ? (
-          <p className="tds-alert tds-alert--danger" role="alert">
+          <Alert>
             Chats konnten nicht geladen werden — die API ist nicht erreichbar.
-          </p>
+          </Alert>
         ) : null}
         {sessions.length === 0 ? (
           <p className="marginalia">Keine Chats.</p>
@@ -101,7 +101,7 @@ function ChatsTab() {
                 <button type="button" className={selected === s.id ? "btn btn-ghost tds-row is-active" : "btn btn-ghost tds-row"} onClick={() => setSelected(s.id)}>
                   <strong>{s.visitor_name || s.visitor_email || `Besucher #${s.id}`}</strong>
                   <span className="marginalia">
-                    {s.frontend ?? "–"} · {s.message_count} · {new Date(s.last_activity_at).toLocaleString("de-DE")}
+                    {s.frontend ?? "–"} · {s.message_count} · {formatDateTime(s.last_activity_at)}
                   </span>
                   {s.status === "open" ? <span className="chip chip--info">offen</span> : null}
                 </button>
@@ -134,7 +134,7 @@ function ChatThread({ sessionId, onChanged }: { sessionId: number; onChanged: ()
   const load = useCallback(async () => {
     // Polled every few seconds, so a lost connection is a state to show, not a
     // toast per poll. Uncaught, every poll was an unhandled rejection.
-    const res = await api(`/admin/live-chat-cta/sessions/${sessionId}`).catch(() => null);
+    const res = await apiFetch(`/admin/live-chat-cta/sessions/${sessionId}`).catch(() => null);
     setOffline(res === null);
     if (res?.ok) {
       const d = await res.json();
@@ -157,11 +157,7 @@ function ChatThread({ sessionId, onChanged }: { sessionId: number; onChanged: ()
     const body = reply.trim();
     if (!body) return;
     setBusy(true);
-    const res = await api(`/admin/live-chat-cta/sessions/${sessionId}/reply`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ body }),
-    }).catch(() => null);
+    const res = await sendJson(`/admin/live-chat-cta/sessions/${sessionId}/reply`, "POST", { body }).catch(() => null);
     setBusy(false);
     if (res === null) {
       // The draft stays in the box; the visitor has not received it.
@@ -180,11 +176,7 @@ function ChatThread({ sessionId, onChanged }: { sessionId: number; onChanged: ()
 
   const toggleStatus = async () => {
     const next = status === "open" ? "closed" : "open";
-    const res = await api(`/admin/live-chat-cta/sessions/${sessionId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: next }),
-    }).catch(() => null);
+    const res = await sendJson(`/admin/live-chat-cta/sessions/${sessionId}`, "PATCH", { status: next }).catch(() => null);
     if (res === null) {
       toast.danger("Status konnte nicht geändert werden — die API ist nicht erreichbar.");
       return;
@@ -207,9 +199,9 @@ function ChatThread({ sessionId, onChanged }: { sessionId: number; onChanged: ()
         <button className="btn btn-ghost" type="button" onClick={toggleStatus}>{status === "open" ? "Schließen" : "Wieder öffnen"}</button>
       </div>
       {offline ? (
-        <p className="tds-alert tds-alert--warning" role="status">
+        <Alert tone="warning">
           Die API ist nicht erreichbar — neue Nachrichten erscheinen, sobald sie wieder antwortet.
-        </p>
+        </Alert>
       ) : null}
       {/* Shared thread primitive. Sides mapped EXPLICITLY — `msg msg--${author}`
           matched no rule anywhere, so the bubbles rendered unstyled. This is the
@@ -223,7 +215,7 @@ function ChatThread({ sessionId, onChanged }: { sessionId: number; onChanged: ()
             }`}
           >
             <p>{m.body}</p>
-            <time>{new Date(m.created_at).toLocaleTimeString("de-DE")}</time>
+            <time>{parseDate(m.created_at)?.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) ?? ""}</time>
           </div>
         ))}
         <div ref={endRef} />

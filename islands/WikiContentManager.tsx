@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { ConfirmDialog, toast } from "@tracht-digital-solutions/tds-shared/components";
-import { apiFetch } from "@tracht-digital-solutions/tds-shared/api";
+import { Alert, ConfirmDialog, TabPanel, Tabs, toast } from "@tracht-digital-solutions/tds-shared/components";
+import { apiFetch, sendJson } from "@tracht-digital-solutions/tds-shared/api";
 import {
   AnimatedItem,
   AnimatedList,
@@ -21,29 +21,24 @@ import {
  * copy to keep in sync.
  */
 
-const api = apiFetch;
-
 type Tab = "faq" | "docs";
 
 export default function WikiContentManager() {
   const [tab, setTab] = useState<Tab>("faq");
   return (
     <div className="wiki-content-manager">
-      <nav className="tds-row" role="tablist">
-        <TabButton active={tab === "faq"} onClick={() => setTab("faq")}>FAQ</TabButton>
-        <TabButton active={tab === "docs"} onClick={() => setTab("docs")}>Handbücher</TabButton>
-      </nav>
-      {tab === "faq" ? <FaqTab /> : <DocsTab />}
+      <Tabs
+        label="Inhalte"
+        idPrefix="wiki-content"
+        tabs={[["faq", "FAQ"], ["docs", "Handbücher"]]}
+        value={tab}
+        onChange={setTab}
+        decorate={(_id, active) => (active ? <TabIndicator group="wiki-content" /> : null)}
+      />
+      <TabPanel idPrefix="wiki-content" id={tab} active>
+        {tab === "faq" ? <FaqTab /> : <DocsTab />}
+      </TabPanel>
     </div>
-  );
-}
-
-function TabButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button type="button" role="tab" aria-selected={active} className={active ? "chip tds-tab chip-active" : "chip tds-tab"} onClick={onClick}>
-      {children}
-      {active ? <TabIndicator group="wiki-content" /> : null}
-    </button>
   );
 }
 
@@ -71,7 +66,7 @@ function FaqTab() {
   const load = useCallback(async () => {
     // apiFetch rejects when the request never reaches the API; uncaught, the
     // list simply stayed empty and the rejection went unhandled.
-    const res = await api("/admin/live-chat-cta/faqs").catch(() => null);
+    const res = await apiFetch("/admin/live-chat-cta/faqs").catch(() => null);
     setLoadFailed(res === null);
     if (res?.ok) setRows((await res.json()).faqs ?? []);
   }, []);
@@ -85,11 +80,7 @@ function FaqTab() {
       return;
     }
     const isEdit = typeof draft.id === "number";
-    const res = await api(`/admin/live-chat-cta/faqs${isEdit ? `/${draft.id}` : ""}`, {
-      method: isEdit ? "PUT" : "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(draft),
-    }).catch(() => null);
+    const res = await sendJson(`/admin/live-chat-cta/faqs${isEdit ? `/${draft.id}` : ""}`, isEdit ? "PUT" : "POST", draft).catch(() => null);
     if (res === null) {
       // The draft stays in the form.
       toast.danger("Speichern fehlgeschlagen — die API ist nicht erreichbar.");
@@ -110,7 +101,7 @@ function FaqTab() {
     if (!r) return;
     setDeleting(true);
     try {
-      const res = await api(`/admin/live-chat-cta/faqs/${r.id}`, { method: "DELETE" });
+      const res = await apiFetch(`/admin/live-chat-cta/faqs/${r.id}`, { method: "DELETE" });
       setPendingDelete(null);
       if (res.ok) await load();
     } catch {
@@ -159,16 +150,16 @@ function FaqTab() {
           </label>
         </div>
         {/* Only form validation reaches this now — outcomes are toasts. */}
-        {status ? <p className="tds-alert tds-alert--danger" role="alert">{status}</p> : null}
+        <Alert>{status}</Alert>
         <div className="tds-toolbar">
           <button className="btn btn-primary" type="submit">Speichern</button>
           {typeof draft.id === "number" ? <button className="btn btn-ghost" type="button" onClick={() => setDraft({ ...emptyFaq })}>Abbrechen</button> : null}
         </div>
       </form>
       {loadFailed ? (
-        <p className="tds-alert tds-alert--danger" role="alert">
+        <Alert>
           FAQ-Einträge konnten nicht geladen werden — die API ist nicht erreichbar.
-        </p>
+        </Alert>
       ) : null}
       <AnimatedList className="tds-list">
         {rows.map((r) => (
@@ -221,7 +212,7 @@ function DocsTab() {
 
   const load = useCallback(async () => {
     // Same as the FAQ list: uncaught, a lost request looked like "no articles".
-    const res = await api("/admin/live-chat-cta/docs").catch(() => null);
+    const res = await apiFetch("/admin/live-chat-cta/docs").catch(() => null);
     setLoadFailed(res === null);
     if (res?.ok) setRows((await res.json()).docs ?? []);
   }, []);
@@ -235,11 +226,7 @@ function DocsTab() {
       return;
     }
     const isEdit = typeof draft.id === "number";
-    const res = await api(`/admin/live-chat-cta/docs${isEdit ? `/${draft.id}` : ""}`, {
-      method: isEdit ? "PUT" : "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(draft),
-    }).catch(() => null);
+    const res = await sendJson(`/admin/live-chat-cta/docs${isEdit ? `/${draft.id}` : ""}`, isEdit ? "PUT" : "POST", draft).catch(() => null);
     if (res === null) {
       toast.danger("Speichern fehlgeschlagen — die API ist nicht erreichbar.");
       return;
@@ -258,7 +245,7 @@ function DocsTab() {
     if (!r) return;
     setDeleting(true);
     try {
-      const res = await api(`/admin/live-chat-cta/docs/${r.id}`, { method: "DELETE" });
+      const res = await apiFetch(`/admin/live-chat-cta/docs/${r.id}`, { method: "DELETE" });
       setPendingDelete(null);
       if (res.ok) await load();
     } catch {
@@ -305,16 +292,16 @@ function DocsTab() {
           </label>
         </div>
         {/* Only form validation reaches this now — outcomes are toasts. */}
-        {status ? <p className="tds-alert tds-alert--danger" role="alert">{status}</p> : null}
+        <Alert>{status}</Alert>
         <div className="tds-toolbar">
           <button className="btn btn-primary" type="submit">Speichern</button>
           {typeof draft.id === "number" ? <button className="btn btn-ghost" type="button" onClick={() => setDraft({ ...emptyDoc })}>Abbrechen</button> : null}
         </div>
       </form>
       {loadFailed ? (
-        <p className="tds-alert tds-alert--danger" role="alert">
+        <Alert>
           Artikel konnten nicht geladen werden — die API ist nicht erreichbar.
-        </p>
+        </Alert>
       ) : null}
       <AnimatedList className="tds-list">
         {rows.map((r) => (

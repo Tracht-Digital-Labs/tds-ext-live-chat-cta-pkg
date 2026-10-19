@@ -1,25 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
-import { Spinner, toast } from "@tracht-digital-solutions/tds-shared/components";
-import { apiFetch } from "@tracht-digital-solutions/tds-shared/api";
+import { Alert, Spinner } from "@tracht-digital-solutions/tds-shared/components";
+import { useRuntimeSettings } from "@tracht-digital-solutions/tds-shared/admin";
 
 /**
  * Live-Chat settings — the activation matrix (each frontend × {master, chat, faq,
  * docs, contact}) plus the widget branding. Persisted to the core runtime
- * settings store (/admin/settings/live-chat-cta); all keys are non-secret. The
+ * settings store (/admin/settings/live-chat-cta, via tds-shared
+ * `useRuntimeSettings`); all keys are non-secret. The
  * public config endpoint reads the same store, so toggles take effect with no
  * rebuild — the widget just re-reads config on its next mount.
  */
-
-interface Masked {
-  key: string;
-  secret: boolean;
-  configured?: boolean;
-  last4?: string | null;
-  value?: string;
-}
-
-const api = apiFetch;
-const NS = "/admin/settings/live-chat-cta";
 
 const FRONTENDS: { key: string; label: string }[] = [
   { key: "landingpage", label: "Landingpage" },
@@ -36,9 +26,7 @@ const FEATURES: { key: string; label: string }[] = [
 ];
 
 export default function LiveChatSettings() {
-  const [loaded, setLoaded] = useState(false);
-  const [status, setStatus] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
+  const settings = useRuntimeSettings("live-chat-cta");
   const [values, setValues] = useState<Record<string, string>>({});
 
   const allKeys = useMemo(() => {
@@ -50,22 +38,8 @@ export default function LiveChatSettings() {
     return keys;
   }, []);
 
-  const load = async () => {
-    // apiFetch rejects when the request never reaches the API; uncaught, this
-    // section stayed on its spinner for good.
-    const res = await api(NS).catch(() => null);
-    if (res === null) {
-      setStatus("Einstellungen konnten nicht geladen werden — die API ist nicht erreichbar.");
-      setLoaded(true);
-      return;
-    }
-    if (!res.ok) {
-      setStatus(res.status === 401 || res.status === 403 ? "Nur für Administratoren." : `Fehler (HTTP ${res.status}).`);
-      setLoaded(true);
-      return;
-    }
-    const d = await res.json();
-    const map = new Map<string, Masked>((d.settings ?? []).map((s: Masked) => [s.key, s]));
+  useEffect(() => {
+    const map = settings.settings;
     const next: Record<string, string> = {};
     for (const k of allKeys) next[k] = map.get(k)?.value ?? "";
     // Coded defaults so first load matches the backend's SettingDef defaults.
@@ -78,41 +52,15 @@ export default function LiveChatSettings() {
       }
     }
     setValues(next);
-    setLoaded(true);
-  };
-
-  useEffect(() => {
-    void load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [settings.settings, allKeys]);
 
   const set = (key: string, value: string) => setValues((v) => ({ ...v, [key]: value }));
   const flag = (key: string) => values[key] === "1";
   const toggle = (key: string) => set(key, flag(key) ? "0" : "1");
 
-  const save = async () => {
-    setBusy(true);
-    setStatus(null);
-    const settings: Masked[] = allKeys.map((key) => ({ key, secret: false, value: values[key] ?? "" }));
-    const res = await api(NS, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ settings }),
-    }).catch(() => null);
-    setBusy(false);
-    if (res === null) {
-      toast.danger("Speichern fehlgeschlagen — die API ist nicht erreichbar.");
-      return;
-    }
-    if (res.ok) {
-      toast.success("Gespeichert.");
-      void load();
-    } else {
-      toast.danger(`Speichern fehlgeschlagen (HTTP ${res.status}).`);
-    }
-  };
+  const save = () => settings.save(allKeys.map((key) => ({ key, value: values[key] ?? "" })));
 
-  if (!loaded) return <p><Spinner /></p>;
+  if (!settings.loaded) return <p><Spinner /></p>;
 
   return (
     <div className="live-chat-settings space-y-5">
@@ -191,8 +139,8 @@ export default function LiveChatSettings() {
 
       {/* The load failure is persistent state and stays in-flow; the save
           outcome is a toast now. Failures only, hence the danger hue. */}
-      {status ? <p className="tds-alert tds-alert--danger" role="alert">{status}</p> : null}
-      <button className="btn btn-primary" type="button" onClick={save} disabled={busy}>Speichern</button>
+      <Alert>{settings.error}</Alert>
+      <button className="btn btn-primary" type="button" onClick={() => void save()} disabled={settings.busy}>Speichern</button>
     </div>
   );
 }

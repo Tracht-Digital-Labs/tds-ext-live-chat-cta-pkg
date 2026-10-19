@@ -110,14 +110,16 @@ describe("the widget", () => {
   it("does not render counts carried by a NON-OK response", async () => {
     reply = { status: 403, body: { openChats: 99, newContacts: 99 } };
     render(<WidgetBody />);
-    expect(await screen.findByText("0 neue Kontaktanfragen")).toBeTruthy();
+    // tds-shared SummaryMetric: a failure is "—", never a fake zero.
+    expect(await screen.findByText("—")).toBeTruthy();
     expect(screen.queryByText("99")).toBeNull();
   });
 
   it("still resolves to a rendered tile when the request rejects", async () => {
     reply = "reject";
     render(<WidgetBody />);
-    expect(await screen.findByText("0 neue Kontaktanfragen")).toBeTruthy();
+    // tds-shared SummaryMetric: a failure is "—", never a fake zero.
+    expect(await screen.findByText("—")).toBeTruthy();
     expect(document.querySelector('[aria-busy="true"]')).toBeNull();
   });
 });
