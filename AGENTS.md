@@ -33,6 +33,7 @@ composer install && composer test   # phpunit: routes/RBAC + doc parity
 - Migration file names map to `LiveChatCta*` classes; versions stay in the `20260801*` band.
 - Edits PUT, never POST. Outcomes are toasts. Call the API with `apiFetch`. Never mount a `ToastHost`.
 - Stay in the `0.1.x` line. Versions move via the release workflow only.
+- Follows the TDS quality standard (`../tds-ops/standards/quality.md`): no AI slop, clean code.
 
 ## Topic files
 

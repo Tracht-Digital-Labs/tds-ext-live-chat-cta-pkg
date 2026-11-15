@@ -89,7 +89,7 @@ function ChatsTab() {
         </div>
         {loadFailed ? (
           <Alert>
-            Chats konnten nicht geladen werden — die API ist nicht erreichbar.
+            Chats konnten nicht geladen werden, die API ist nicht erreichbar.
           </Alert>
         ) : null}
         {sessions.length === 0 ? (
@@ -161,7 +161,7 @@ function ChatThread({ sessionId, onChanged }: { sessionId: number; onChanged: ()
     setBusy(false);
     if (res === null) {
       // The draft stays in the box; the visitor has not received it.
-      toast.danger("Antwort konnte nicht gesendet werden — die API ist nicht erreichbar.");
+      toast.danger("Antwort konnte nicht gesendet werden, die API ist nicht erreichbar.");
       return;
     }
     if (res.ok) {
@@ -178,7 +178,7 @@ function ChatThread({ sessionId, onChanged }: { sessionId: number; onChanged: ()
     const next = status === "open" ? "closed" : "open";
     const res = await sendJson(`/admin/live-chat-cta/sessions/${sessionId}`, "PATCH", { status: next }).catch(() => null);
     if (res === null) {
-      toast.danger("Status konnte nicht geändert werden — die API ist nicht erreichbar.");
+      toast.danger("Status konnte nicht geändert werden, die API ist nicht erreichbar.");
       return;
     }
     if (res.ok) {
@@ -200,7 +200,7 @@ function ChatThread({ sessionId, onChanged }: { sessionId: number; onChanged: ()
       </div>
       {offline ? (
         <Alert tone="warning">
-          Die API ist nicht erreichbar — neue Nachrichten erscheinen, sobald sie wieder antwortet.
+          Die API ist nicht erreichbar, neue Nachrichten erscheinen, sobald sie wieder antwortet.
         </Alert>
       ) : null}
       {/* Shared thread primitive. Sides mapped EXPLICITLY — `msg msg--${author}`

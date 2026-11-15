@@ -83,7 +83,7 @@ function FaqTab() {
     const res = await sendJson(`/admin/live-chat-cta/faqs${isEdit ? `/${draft.id}` : ""}`, isEdit ? "PUT" : "POST", draft).catch(() => null);
     if (res === null) {
       // The draft stays in the form.
-      toast.danger("Speichern fehlgeschlagen — die API ist nicht erreichbar.");
+      toast.danger("Speichern fehlgeschlagen, die API ist nicht erreichbar.");
       return;
     }
     if (res.ok) {
@@ -107,7 +107,7 @@ function FaqTab() {
     } catch {
       // Without this the rejection went unhandled and the dialog stayed open.
       setPendingDelete(null);
-      toast.danger("Löschen fehlgeschlagen — die API ist nicht erreichbar.");
+      toast.danger("Löschen fehlgeschlagen, die API ist nicht erreichbar.");
     } finally {
       setDeleting(false);
     }
@@ -158,7 +158,7 @@ function FaqTab() {
       </form>
       {loadFailed ? (
         <Alert>
-          FAQ-Einträge konnten nicht geladen werden — die API ist nicht erreichbar.
+          FAQ-Einträge konnten nicht geladen werden, die API ist nicht erreichbar.
         </Alert>
       ) : null}
       <AnimatedList className="tds-list">
@@ -228,7 +228,7 @@ function DocsTab() {
     const isEdit = typeof draft.id === "number";
     const res = await sendJson(`/admin/live-chat-cta/docs${isEdit ? `/${draft.id}` : ""}`, isEdit ? "PUT" : "POST", draft).catch(() => null);
     if (res === null) {
-      toast.danger("Speichern fehlgeschlagen — die API ist nicht erreichbar.");
+      toast.danger("Speichern fehlgeschlagen, die API ist nicht erreichbar.");
       return;
     }
     if (res.ok) {
@@ -250,7 +250,7 @@ function DocsTab() {
       if (res.ok) await load();
     } catch {
       setPendingDelete(null);
-      toast.danger("Löschen fehlgeschlagen — die API ist nicht erreichbar.");
+      toast.danger("Löschen fehlgeschlagen, die API ist nicht erreichbar.");
     } finally {
       setDeleting(false);
     }
@@ -300,7 +300,7 @@ function DocsTab() {
       </form>
       {loadFailed ? (
         <Alert>
-          Artikel konnten nicht geladen werden — die API ist nicht erreichbar.
+          Artikel konnten nicht geladen werden, die API ist nicht erreichbar.
         </Alert>
       ) : null}
       <AnimatedList className="tds-list">

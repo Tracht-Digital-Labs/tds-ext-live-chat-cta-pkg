@@ -168,7 +168,7 @@ describe("the page", () => {
 });
 
 describe("the chat inbox", () => {
-  it("asks for OPEN chats first — the ones waiting on a reply", async () => {
+  it("asks for OPEN chats first, the ones waiting on a reply", async () => {
     await open();
     expect(pathOf(calls[0]!.url)).toBe(`${SESSIONS}?status=open`);
     const fetchMock = fetch as unknown as ReturnType<typeof vi.fn>;
@@ -278,7 +278,7 @@ describe("when the API is unreachable", () => {
   it("says so instead of claiming there are no chats", async () => {
     unreachable(/^\/admin\/live-chat-cta\/sessions(\?|$)/, "GET");
     await open();
-    expect(await screen.findByText("Chats konnten nicht geladen werden — die API ist nicht erreichbar.")).toBeTruthy();
+    expect(await screen.findByText("Chats konnten nicht geladen werden, die API ist nicht erreichbar.")).toBeTruthy();
   });
 
   it("marks an open thread as offline instead of failing silently", async () => {
@@ -286,7 +286,7 @@ describe("when the API is unreachable", () => {
     unreachable(/^\/admin\/live-chat-cta\/sessions\/3$/, "GET");
     const u = await open();
     await u.click(await screen.findByRole("button", { name: /Lena Beispiel/ }));
-    expect(await screen.findByText("Die API ist nicht erreichbar — neue Nachrichten erscheinen, sobald sie wieder antwortet.")).toBeTruthy();
+    expect(await screen.findByText("Die API ist nicht erreichbar, neue Nachrichten erscheinen, sobald sie wieder antwortet.")).toBeTruthy();
   });
 
   it("keeps the draft when the reply never reaches the API", async () => {
@@ -445,7 +445,7 @@ describe("replying to a visitor", () => {
     await waitFor(() => expect(replies()).toHaveLength(1));
   });
 
-  it("does not send on a bare Enter — that is a new line", async () => {
+  it("does not send on a bare Enter, that is a new line", async () => {
     const u = await openThread();
     await u.type(box(), "Erste Zeile");
     await u.keyboard("{Enter}");

@@ -89,7 +89,7 @@ export default function LiveChatSettings() {
       <fieldset className="space-y-3">
         <legend className="text-sm font-semibold">Aktivierung je Frontend</legend>
         <p className="text-sm opacity-70">
-          Widget pro Frontend an/aus — und je Frontend einzeln festlegen, welche Funktionen erscheinen.
+          Widget pro Frontend an/aus, und je Frontend einzeln festlegen, welche Funktionen erscheinen.
         </p>
         {/* This matrix used to carry no shared class and an inline `overflowX`
             instead. Extensions ship no CSS, so `.live-chat-settings__matrix`

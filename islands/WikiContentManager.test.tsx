@@ -201,7 +201,7 @@ describe("the FAQ editor", () => {
     });
   });
 
-  it("UPDATES with PUT to the row — never creating a duplicate", async () => {
+  it("UPDATES with PUT to the row, never creating a duplicate", async () => {
     const u = await openFaq([FAQ]);
     await u.click(await screen.findByRole("button", { name: "Bearbeiten" }));
     await u.click(screen.getByRole("button", { name: "Speichern" }));
@@ -363,7 +363,7 @@ describe("the FAQ editor", () => {
     // fetch rejects offline; unhandled, a lost request looked like "no FAQs".
     unreachable(/^\/admin\/live-chat-cta\/faqs$/, "GET");
     await open("FAQ");
-    expect(await screen.findByText("FAQ-Einträge konnten nicht geladen werden — die API ist nicht erreichbar.")).toBeTruthy();
+    expect(await screen.findByText("FAQ-Einträge konnten nicht geladen werden, die API ist nicht erreichbar.")).toBeTruthy();
   });
 
   it("KEEPS the form filled when the save never reaches the API", async () => {
@@ -490,7 +490,7 @@ describe("the documentation editor", () => {
   it("says so instead of an empty list when the API is unreachable", async () => {
     unreachable(/^\/admin\/live-chat-cta\/docs$/, "GET");
     await open("Handbücher");
-    expect(await screen.findByText("Artikel konnten nicht geladen werden — die API ist nicht erreichbar.")).toBeTruthy();
+    expect(await screen.findByText("Artikel konnten nicht geladen werden, die API ist nicht erreichbar.")).toBeTruthy();
   });
 
   it("keeps the article in the form when the save never reaches the API", async () => {
