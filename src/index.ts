@@ -1,4 +1,4 @@
-import { defineExtension } from "@tracht-digital-solutions/tds-frontend-contract";
+import { defineExtension } from "@tracht-digital-labs/tds-frontend-contract";
 
 /**
  * Live-Chat-CTA extension manifest.
@@ -47,7 +47,7 @@ export default defineExtension({
     {
       id: "live-chat-open",
       title: "Offene Chats",
-      island: "@tracht-digital-solutions/tds-ext-live-chat-cta/widgets/Widget.astro",
+      island: "@tracht-digital-labs/tds-ext-live-chat-cta/widgets/Widget.astro",
       size: "sm",
       permission: "live-chat:read",
       dataEndpoint: "/live-chat-cta/summary",
@@ -58,19 +58,19 @@ export default defineExtension({
     {
       id: "live-chat-cta",
       label: "Live-Chat",
-      island: "@tracht-digital-solutions/tds-ext-live-chat-cta/islands/Settings.astro",
+      island: "@tracht-digital-labs/tds-ext-live-chat-cta/islands/Settings.astro",
       order: 40,
     },
   ],
   routes: [
     {
       pattern: "/live-chat",
-      entrypoint: "@tracht-digital-solutions/tds-ext-live-chat-cta/pages/Index.astro",
+      entrypoint: "@tracht-digital-labs/tds-ext-live-chat-cta/pages/Index.astro",
       permission: "live-chat:read",
     },
     {
       pattern: "/wiki-inhalte",
-      entrypoint: "@tracht-digital-solutions/tds-ext-live-chat-cta/pages/WikiContent.astro",
+      entrypoint: "@tracht-digital-labs/tds-ext-live-chat-cta/pages/WikiContent.astro",
       permission: "wiki:read",
     },
   ],

@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import { Alert, ConfirmDialog, TabPanel, Tabs, toast } from "@tracht-digital-solutions/tds-shared/components";
-import { apiFetch, sendJson } from "@tracht-digital-solutions/tds-shared/api";
+import { Alert, ConfirmDialog, TabPanel, Tabs, toast } from "@tracht-digital-labs/tds-shared/components";
+import { apiFetch, sendJson } from "@tracht-digital-labs/tds-shared/api";
 import {
   AnimatedItem,
   AnimatedList,
   TabIndicator,
-} from "@tracht-digital-solutions/tds-shared/motion/react";
+} from "@tracht-digital-labs/tds-shared/motion/react";
 
 /**
  * Admin editor for the WIKI CONTENT: the FAQs and handbook articles the

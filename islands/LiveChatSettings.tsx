@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Spinner } from "@tracht-digital-solutions/tds-shared/components";
-import { useRuntimeSettings } from "@tracht-digital-solutions/tds-shared/admin";
+import { Alert, Spinner } from "@tracht-digital-labs/tds-shared/components";
+import { useRuntimeSettings } from "@tracht-digital-labs/tds-shared/admin";
 
 /**
  * Live-Chat settings — the activation matrix (each frontend × {master, chat, faq,

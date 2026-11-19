@@ -16,7 +16,7 @@ beforeAll(() => {
 afterAll(() => {
   MotionGlobalConfig.skipAnimations = false;
 });
-import { TOAST_EVENT } from "@tracht-digital-solutions/tds-shared/toast";
+import { TOAST_EVENT } from "@tracht-digital-labs/tds-shared/toast";
 
 /**
  * The admin management surface: the visitor-chat inbox, the FAQ editor and the

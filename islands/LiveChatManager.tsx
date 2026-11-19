@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Alert, toast } from "@tracht-digital-solutions/tds-shared/components";
-import { apiFetch, sendJson } from "@tracht-digital-solutions/tds-shared/api";
+import { Alert, toast } from "@tracht-digital-labs/tds-shared/components";
+import { apiFetch, sendJson } from "@tracht-digital-labs/tds-shared/api";
 import {
   AnimatedItem,
   AnimatedList,
   Presence,
-} from "@tracht-digital-solutions/tds-shared/motion/react";
-import { formatDateTime, parseDate } from "@tracht-digital-solutions/tds-shared/format";
+} from "@tracht-digital-labs/tds-shared/motion/react";
+import { formatDateTime, parseDate } from "@tracht-digital-labs/tds-shared/format";
 
 /**
  * Admin surface for the Live-Chat-CTA: the visitor-session inbox (list + thread
